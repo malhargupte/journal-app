@@ -1,6 +1,7 @@
 package com.guptem.journalApp.services;
 
 import com.guptem.journalApp.entities.JournalEntry;
+import com.guptem.journalApp.entities.User;
 import com.guptem.journalApp.repository.JournalEntryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,16 @@ public class JournalEntryService {
     @Autowired
     private JournalEntryRepo journalEntryRepo;
 
-    public JournalEntry saveEntry(JournalEntry journalEntry) {
+    @Autowired
+    private UserService userService;
+
+    public void saveEntry(JournalEntry journalEntry, String username) {
+        User user = userService.findByUsername(username);
         journalEntry.setDate(LocalDate.now());
-        return journalEntryRepo.save(journalEntry);
+        journalEntry.setUser(user);
+        JournalEntry saved = journalEntryRepo.save(journalEntry);
+        user.getJournalEntries().add(saved);
+        userService.createUser(user);
     }
 
     public List<JournalEntry> getAllEntries() {
@@ -42,8 +50,6 @@ public class JournalEntryService {
                     updatedEntry.getTitle() : oldEntry.getTitle());
             oldEntry.setContent(updatedEntry.getContent() != null && !updatedEntry.getContent().equals("") ?
                     updatedEntry.getContent() : oldEntry.getContent());
-            // Preserve the original date - don't update it
-            // oldEntry.setDate() is not called, keeping the original date
         }
 
         return journalEntryRepo.save(oldEntry);

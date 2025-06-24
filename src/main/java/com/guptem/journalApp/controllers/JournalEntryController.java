@@ -1,7 +1,9 @@
 package com.guptem.journalApp.controllers;
 
 import com.guptem.journalApp.entities.JournalEntry;
+import com.guptem.journalApp.entities.User;
 import com.guptem.journalApp.services.JournalEntryService;
+import com.guptem.journalApp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,9 @@ public class JournalEntryController {
     @Autowired
     private JournalEntryService journalEntryService;
 
+    @Autowired
+    private UserService userService;
+
     private Map<Long, JournalEntry> journalEntries = new HashMap<>();
 
     @GetMapping
@@ -26,10 +31,15 @@ public class JournalEntryController {
         return journalEntryService.getAllEntries();
     }
 
-    @PostMapping
-    public ResponseEntity<JournalEntry> createMapping(@RequestBody JournalEntry myEntry) {
-        JournalEntry savedEntry = journalEntryService.saveEntry(myEntry);
-        return new ResponseEntity<>(savedEntry, HttpStatus.CREATED);
+    @PostMapping("{username}")
+    public ResponseEntity<JournalEntry> createMapping(@RequestBody JournalEntry myEntry,
+                                                      @PathVariable String username) {
+        try {
+            journalEntryService.saveEntry(myEntry, username);
+            return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(path = "/getId/{myId}")
@@ -40,6 +50,7 @@ public class JournalEntryController {
 
     @DeleteMapping(path = "/delete/{myId}")
     public ResponseEntity<?> deleteJournalEntry(@PathVariable Long myId) {
+        journalEntryService.deleteById(myId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -48,5 +59,15 @@ public class JournalEntryController {
                                                @RequestBody JournalEntry journalEntry)  {
         return new ResponseEntity<>(journalEntry, HttpStatus.OK);
 
+    }
+
+    @GetMapping("{username}")
+    public ResponseEntity<?> getAllJournalEntries(@PathVariable String username) {
+        User user = userService.findByUsername(username);
+        List<JournalEntry> all = user.getJournalEntries();
+        if (all != null && !all.isEmpty()) {
+            return new ResponseEntity<>(all, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
