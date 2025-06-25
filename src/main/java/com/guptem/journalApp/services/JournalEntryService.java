@@ -5,6 +5,7 @@ import com.guptem.journalApp.entities.User;
 import com.guptem.journalApp.repository.JournalEntryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +19,7 @@ public class JournalEntryService {
     @Autowired
     private UserService userService;
 
+    @Transactional
     public void saveEntry(JournalEntry journalEntry, String username) {
         User user = userService.findByUsername(username);
         journalEntry.setDate(LocalDate.now());

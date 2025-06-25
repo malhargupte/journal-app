@@ -7,12 +7,12 @@ import com.guptem.journalApp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/journal")
@@ -31,10 +31,11 @@ public class JournalEntryController {
         return journalEntryService.getAllEntries();
     }
 
-    @PostMapping("{username}")
-    public ResponseEntity<JournalEntry> createMapping(@RequestBody JournalEntry myEntry,
-                                                      @PathVariable String username) {
+    @PostMapping
+    public ResponseEntity<JournalEntry> createMapping(@RequestBody JournalEntry myEntry) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
             journalEntryService.saveEntry(myEntry, username);
             return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -44,7 +45,23 @@ public class JournalEntryController {
 
     @GetMapping(path = "/getId/{myId}")
     public ResponseEntity<JournalEntry> getJournalEntryById(@PathVariable Long myId) {
-        return new ResponseEntity<>(journalEntryService.getEntryById(myId), HttpStatus.OK);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userService.findByUsername(username);
+        List<JournalEntry> collect = user.getJournalEntries()
+                .stream()
+                .filter(x -> x.getId().equals(myId))
+                .collect(Collectors.toList());
+
+        if (!collect.isEmpty()) {
+            Optional<JournalEntry> journalEntry = Optional.ofNullable(journalEntryService.getEntryById(myId));
+            if (journalEntry.isPresent()) {
+                return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
