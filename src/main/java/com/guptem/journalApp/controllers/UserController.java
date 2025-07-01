@@ -1,7 +1,9 @@
 package com.guptem.journalApp.controllers;
 
+import com.guptem.journalApp.api.response.WeatherResponse;
 import com.guptem.journalApp.entities.User;
 import com.guptem.journalApp.services.UserService;
+import com.guptem.journalApp.services.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,4 +39,30 @@ public class UserController {
     public ResponseEntity<?> deleteUser(@PathVariable Long Id) {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping(path =  "/checkLog")
+    public boolean checkLog(@RequestBody User user) {
+        boolean val = userService.saveNewUser(user);
+        return val;
+    }
+
+    @Autowired
+    private WeatherService weatherService;
+
+    @GetMapping(path = "/greeting")
+    public ResponseEntity<?> greeting() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        WeatherResponse weatherResponse = weatherService.getWeather("MUMBAI");
+
+        String greeting = "Hi " + authentication.getName();
+
+        if (weatherResponse != null && weatherResponse.getCurrent() != null) {
+            greeting += ", Weather feels like " + weatherResponse.getCurrent().getFeelslike();
+        } else {
+            greeting += ", Weather info not available";
+        }
+
+        return new ResponseEntity<>(greeting, HttpStatus.OK);
+    }
+
 }

@@ -4,6 +4,8 @@ import com.guptem.journalApp.entities.JournalEntry;
 import com.guptem.journalApp.entities.User;
 import com.guptem.journalApp.repository.UserRepo;
 import jakarta.persistence.Id;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,15 +14,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
+//@Slf4j
 public class UserService {
 
     @Autowired
     private UserRepo userRepo;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final static PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
 
     public User createUser(User user) {
         return userRepo.save(user);
@@ -65,6 +73,22 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+    }
+
+    public boolean saveNewUser(User user) {
+        try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRoles(Arrays.asList("USER"));
+            userRepo.save(user);
+            return true;
+        } catch (Exception e) {
+            logger.error("hahahhaa");
+            logger.warn("hahahhaa");
+            logger.info("hahahhaa");
+            logger.debug("hahahhaa");
+            logger.trace("hahahhaa");
+            return false;
+        }
     }
 
 }
