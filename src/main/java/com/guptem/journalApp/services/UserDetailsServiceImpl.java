@@ -24,9 +24,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found: " + username));
 
-        System.out.println("Username: " + user.getUsername());
-        System.out.println("Encoded Password: " + user.getPassword());
-        System.out.println("Roles: " + user.getRoles());
+//        System.out.println("Username: " + user.getUsername());
+//        System.out.println("Encoded Password: " + user.getPassword());
+//        System.out.println("Roles: " + user.getRoles());
 
         UserBuilder builder = org.springframework.security.core.userdetails.User.withUsername(user.getUsername());
         builder.password(user.getPassword());
