@@ -6,17 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeatherResponse{
+public class WeatherResponse implements Serializable {
     private Current current;
 
     @Getter
-    public class Current {
+    @NoArgsConstructor
+    public static class Current implements Serializable {
         private int temperature;
 
         @JsonProperty("weather_descriptions")

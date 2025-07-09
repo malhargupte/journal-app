@@ -7,11 +7,21 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  data:
+    redis:
+      host: redis-14805.c305.ap-south-1-1.ec2.redns.redis-cloud.com
+      port: 14805
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: false
 
 #logging:
 #  level:
 #    com:
 #      guptem:
 #        journalApp: DEBUG
+
+
+#redis configs
 
 

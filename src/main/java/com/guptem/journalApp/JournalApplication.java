@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableTransactionManagement
-@EnableAspectJAutoProxy
+//@EnableAspectJAutoProxy
 public class JournalApplication {
 
 	public static void main(String[] args) {
